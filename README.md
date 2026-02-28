@@ -12,6 +12,118 @@ With this tool, you can:
 - **Customize video appearance** with different resolutions, note labels, and keyboard settings
 - **Export high-quality MP4 videos** with synchronized audio
 
+## Quick Start Guide - Generate Your First Video
+
+Here's a complete example from cloning the repository to generating your first video:
+
+### Step 1: Install Prerequisites
+
+**Install Rust** (if not already installed):
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+```
+
+**Install FFmpeg**:
+```bash
+# macOS
+brew install ffmpeg
+
+# Ubuntu/Debian
+sudo apt install ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev
+```
+
+### Step 2: Clone and Build
+
+```bash
+# Clone the repository
+git clone https://github.com/sulavtimsina/Neothesia.git
+cd Neothesia
+
+# Build the project (this will take a few minutes)
+cargo build --release -p neothesia-cli
+```
+
+### Step 3: Get a MIDI File
+
+Download a sample MIDI file or use your own:
+```bash
+# Example: Download "Ode to Joy" from BitMidi or any MIDI source
+# Place it in the project directory
+# For this example, let's assume you have: my_song.mid
+```
+
+### Step 4: (Optional) Download a Soundfont
+
+For audio in your video, download a soundfont:
+```bash
+# Download FluidR3_GM soundfont
+curl -L http://www.musescore.org/download/fluid-soundfont.tar.gz -o fluid.tar.gz
+tar -xzf fluid.tar.gz
+# This extracts FluidR3_GM.sf2
+```
+
+### Step 5: Generate Your Video
+
+**With audio** (recommended):
+```bash
+./target/release/neothesia-cli my_song.mid output.mp4 --soundfont FluidR3_GM.sf2
+```
+
+**Without audio** (silent video):
+```bash
+./target/release/neothesia-cli my_song.mid output.mp4
+```
+
+**Complete example with all options**:
+```bash
+./target/release/neothesia-cli my_song.mid output.mp4 \
+  --soundfont FluidR3_GM.sf2 \
+  --width 1920 \
+  --height 1080 \
+  --keyboard-letters \
+  --note-labels
+```
+
+### Step 6: Watch Your Video
+
+```bash
+# The output.mp4 file is now ready!
+# Open it with your default video player
+open output.mp4  # macOS
+xdg-open output.mp4  # Linux
+```
+
+### Complete Example Session
+
+```bash
+# Start from scratch
+cd ~
+git clone https://github.com/sulavtimsina/Neothesia.git
+cd Neothesia
+
+# Build
+cargo build --release -p neothesia-cli
+
+# Download a soundfont
+curl -L http://www.musescore.org/download/fluid-soundfont.tar.gz -o fluid.tar.gz
+tar -xzf fluid.tar.gz
+
+# Get a MIDI file (example: you have ode_to_joy.mid)
+# Generate video
+./target/release/neothesia-cli ode_to_joy.mid my_first_video.mp4 --soundfont FluidR3_GM.sf2
+
+# Output will show:
+# Encoding started:
+#  Encoded 120 frames (2s, 15%) in 3s
+#  Encoded 240 frames (4s, 30%) in 6s
+#  ... (continues until 100%)
+
+# Video is ready!
+```
+
+**Note**: Use `./target/release/neothesia-cli` (with `./`) not just `neothesia-cli` - the `./` tells your terminal where to find the program.
+
 ## Prerequisites
 
 Before using this tool, you need to install:
@@ -183,6 +295,15 @@ The tool will:
 **Rendering time**: Approximately 1-2 minutes of rendering time per 1 minute of MIDI playback (depends on your hardware).
 
 ## Troubleshooting
+
+### "command not found: neothesia-cli"
+You need to use the full path to the binary. Use `./target/release/neothesia-cli` instead of just `neothesia-cli`.
+
+The `./` prefix tells the shell to look in the current directory structure for the program.
+
+Alternatively, you can:
+- Add to PATH temporarily: `export PATH="$PATH:$(pwd)/target/release"`
+- Install globally: `cargo install --path neothesia-cli`
 
 ### "width and height must be a multiple of two"
 Video dimensions must be even numbers. Use values like 1920, 1280, 720, not 1921, 1281, 721.
