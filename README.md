@@ -1,46 +1,215 @@
-![Neothesia Baner](https://github.com/user-attachments/assets/383438e5-80cd-49d2-af30-85afe5d79c6b)
-
-
 # Neothesia
 
-Neothesia is a cross-platform MIDI visualizer build in Rust.
-It helps people to quickly learn how to play piano.
-It takes music notes from a MIDI file as an input and displays them as colorful falling blocks on a virtual piano.
+Neothesia is a cross-platform MIDI visualizer and video encoder built in Rust. It converts MIDI files into beautiful piano visualization videos with colorful falling notes on a virtual piano keyboard.
 
-Opensource Synthesia was abandoned in favour of [closed source commercial project](https://www.synthesiagame.com/)  
-Goal of this project is to bring back Opensource Synthesia to live, and make it look and work as good (or even better) than commercial Synthesia.
+This fork includes a command-line tool for rendering MIDI files to video without requiring the interactive GUI application.
 
-If you have any questions, feel free to join my Discord
+## What You Can Create
 
-[<img alt="Discord" src="https://img.shields.io/discord/273176778946641920?logo=discord&style=for-the-badge&color=%23a051ee">](https://discord.gg/sgeZuVA)
+With this tool, you can:
+- **Generate piano tutorial videos** from any MIDI file
+- **Create YouTube piano videos** with professional-looking visualizations
+- **Customize video appearance** with different resolutions, note labels, and keyboard settings
+- **Export high-quality MP4 videos** with synchronized audio
 
-## Screenshots
+## Prerequisites
 
-![image](https://github.com/PolyMeilex/Neothesia/assets/20758186/65483bab-0b74-4fd4-90b1-fdd00508b676)
+Before using this tool, you need to install:
 
-[![Video](https://github.com/PolyMeilex/Neothesia/assets/20758186/dc564433-aade-4430-b137-5f90000ae9e0)](https://youtu.be/ReE9nVuMCSE)
+### 1. **FFmpeg** (Required)
+The video encoder requires FFmpeg libraries.
 
-|![settings](https://github.com/PolyMeilex/Neothesia/assets/20758186/e38642e2-6118-4931-9964-a1df27a36db9)|![track selection](https://github.com/PolyMeilex/Neothesia/assets/20758186/2309d970-0234-45ff-a9f4-105ff08514af)|
-|--|--|
+**macOS:**
+```bash
+brew install ffmpeg
+```
 
-[Video](https://youtu.be/ReE9nVuMCSE)
+**Ubuntu/Debian:**
+```bash
+sudo apt install ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev
+```
 
-## Download
+**Windows:**
+Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH.
 
-<a href="https://flathub.org/apps/details/com.github.polymeilex.neothesia"><img width="240" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.png"/></a>
+### 2. **Rust** (Required for building)
+Install from [rustup.rs](https://rustup.rs/):
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 
-Arch Linux (**Unofficial AUR** built from source, maintained by @zayn7lie): <https://aur.archlinux.org/packages/neothesia>
+### 3. **Soundfont File** (Optional but recommended)
+For better audio quality, download a SoundFont (.sf2) file:
+- [FluidR3_GM.sf2](http://www.musescore.org/download/fluid-soundfont.tar.gz) (Good quality, ~140MB)
+- [GeneralUser GS](https://schristiancollins.com/generaluser.php) (High quality, ~30MB)
+- Any other SF2 soundfont file
 
-All binary releases:
-[https://github.com/PolyMeilex/Neothesia/releases](https://github.com/PolyMeilex/Neothesia/releases)
+## Building the Project
 
-## FAQ
+Clone and build the CLI tool:
 
-- [FAQ](https://polymeilex.github.io/Neothesia/pages/installation.html)
-- [Video encoding](https://polymeilex.github.io/Neothesia/pages/video-encoding.html)
+```bash
+# Clone the repository
+git clone https://github.com/sulavtimsina/Neothesia.git
+cd Neothesia
 
-## Thanks to
+# Build the CLI tool (release mode for better performance)
+cargo build --release -p neothesia-cli
 
-- [WGPU](https://wgpu.rs/)
-- [Linthesia](https://github.com/linthesia/linthesia)
-- [Synthesia](https://github.com/johndpope/pianogame)
+# The binary will be at: target/release/neothesia-cli
+```
+
+## Basic Usage
+
+### Minimal Command
+
+```bash
+./target/release/neothesia-cli input.mid output.mp4
+```
+
+This generates a 1920x1080 video without audio (unless you provide a soundfont).
+
+### Recommended Command (with audio)
+
+```bash
+./target/release/neothesia-cli input.mid output.mp4 --soundfont FluidR3_GM.sf2
+```
+
+## Command Options
+
+### Full Syntax
+
+```bash
+neothesia-cli <MIDI_FILE> <MP4_FILE> [OPTIONS]
+```
+
+### Available Options
+
+| Option | Description | Default | Example |
+|--------|-------------|---------|---------|
+| `--soundfont <SF2_FILE>` | Path to soundfont file for audio generation | None (silent video) | `--soundfont FluidR3_GM.sf2` |
+| `--width <PIXELS>` | Video width (must be even number) | 1920 | `--width 1280` |
+| `--height <PIXELS>` | Video height (must be even number) | 1080 | `--height 720` |
+| `--keyboard-letters` | Show note letters (C, D, E, etc.) on keyboard keys | Off | `--keyboard-letters` |
+| `--note-labels` | Show note names on falling notes | Off | `--note-labels` |
+| `--note-scroller` | Show scrolling list of upcoming notes at top | Off | `--note-scroller` |
+
+## Command Examples
+
+### 1. Basic HD Video with Audio
+```bash
+neothesia-cli song.mid output.mp4 --soundfont FluidR3_GM.sf2
+```
+
+### 2. 4K Video for YouTube
+```bash
+neothesia-cli song.mid output_4k.mp4 \
+  --soundfont FluidR3_GM.sf2 \
+  --width 3840 \
+  --height 2160
+```
+
+### 3. Tutorial Video with All Labels
+```bash
+neothesia-cli tutorial.mid tutorial.mp4 \
+  --soundfont FluidR3_GM.sf2 \
+  --keyboard-letters \
+  --note-labels \
+  --note-scroller
+```
+
+### 4. 720p Video (smaller file size)
+```bash
+neothesia-cli song.mid output_720p.mp4 \
+  --soundfont FluidR3_GM.sf2 \
+  --width 1280 \
+  --height 720
+```
+
+### 5. Silent Video (no soundfont)
+```bash
+neothesia-cli song.mid silent_output.mp4 \
+  --width 1920 \
+  --height 1080
+```
+
+### 6. Complete Tutorial Video
+```bash
+neothesia-cli lesson.mid lesson_video.mp4 \
+  --soundfont GeneralUser.sf2 \
+  --width 1920 \
+  --height 1080 \
+  --keyboard-letters \
+  --note-labels \
+  --note-scroller
+```
+
+## Where to Get MIDI Files
+
+### Free MIDI Sources:
+1. **MuseScore** - [musescore.com](https://musescore.com)
+   - Huge library of user-uploaded sheet music
+   - Download as MIDI format
+
+2. **BitMidi** - [bitmidi.com](https://bitmidi.com)
+   - Free MIDI file archive
+   - No registration required
+
+3. **FreeMidi.org** - [freemidi.org](https://freemidi.org)
+   - Organized by genre and artist
+
+4. **Classical Music MIDI** - [classicalarchives.com](https://www.classicalarchives.com)
+   - Classical music collection
+
+5. **Create Your Own**
+   - Use DAW software (FL Studio, Ableton, Logic Pro)
+   - Use music notation software (MuseScore, Finale, Sibelius)
+   - Record MIDI from a keyboard/controller
+
+### Tips for MIDI Files:
+- Look for files with separate tracks for left and right hand
+- Check that the file uses standard piano (not drums or other instruments on wrong channels)
+- Test the file in a MIDI player before rendering to verify it sounds correct
+
+## Expected Output
+
+The tool will:
+1. Load your MIDI file
+2. Render each frame at 60 FPS
+3. Generate synchronized audio (if soundfont provided)
+4. Encode to MP4 format with H.264 video codec
+5. Display progress: `Encoded X frames (Ys, Z%) in Ws`
+
+**Rendering time**: Approximately 1-2 minutes of rendering time per 1 minute of MIDI playback (depends on your hardware).
+
+## Troubleshooting
+
+### "width and height must be a multiple of two"
+Video dimensions must be even numbers. Use values like 1920, 1280, 720, not 1921, 1281, 721.
+
+### FFmpeg linking errors
+Make sure FFmpeg development libraries are installed (see Prerequisites).
+
+### No audio in output video
+Add the `--soundfont` option with a valid .sf2 file path.
+
+### Video encoding is slow
+- Use `--release` flag when building: `cargo build --release -p neothesia-cli`
+- Lower resolution: `--width 1280 --height 720`
+- Check CPU usage - rendering is CPU-intensive
+
+## Development
+
+This is a fork of the original [Neothesia](https://github.com/PolyMeilex/Neothesia) project. The original Neothesia is an interactive piano learning application. This fork focuses on command-line video generation.
+
+Original project: [github.com/PolyMeilex/Neothesia](https://github.com/PolyMeilex/Neothesia)
+
+## License
+
+Same license as the original Neothesia project.
+
+## Credits
+
+- Original Neothesia project by PolyMeilex
+- Built with [WGPU](https://wgpu.rs/) for GPU rendering
+- Inspired by [Synthesia](https://www.synthesiagame.com/)
